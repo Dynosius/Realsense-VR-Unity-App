@@ -5,37 +5,35 @@ using System;
 
 public class RealsenseController : MonoBehaviour
 {
-
     private TcpSocket clientSocket;
+    #region gameObjects
     public GameObject leftHand;
     public GameObject rightHand;
     public GameObject leftShoulder;
     public GameObject rightShoulder;
     public GameObject head;
     public GameObject middleBody;
-    private float coordZ = -9f;
-
-
-    #region gameobjectVectors
-    Vector3[] gameobjectVectors = new Vector3[6];
     #endregion
+    private float coordZ = -9f;
+    Vector3[] gameobjectVectors = new Vector3[6];
 
 
     private bool IsMessageReceived = false;
-    private bool IsFirst = true;
     // Use this for initialization
     void Awake()
     {
         clientSocket = new TcpSocket("127.0.0.1", 54000);
         clientSocket.MessageReceived += ClientSocket_MessageReceived;
-        clientSocket.Connect();
+        //clientSocket.Connect();
         // Initializing vectors that will be changed through coordinates we'll be receiving
+        #region gameobjectVectors initialization
         gameobjectVectors[0] = new Vector3(0f, 0f, coordZ);     //0 - leftShoulder
         gameobjectVectors[1] = new Vector3(0f, 0f, coordZ);     //1 - rightShoulder
         gameobjectVectors[2] = new Vector3(0f, 0f, coordZ);     //2 - leftHand
         gameobjectVectors[3] = new Vector3(0f, 0f, coordZ);     //3 - rightHand
         gameobjectVectors[4] = new Vector3(0f, 0f, coordZ);     //4 - head
         gameobjectVectors[5] = new Vector3(0f, 0f, coordZ);     //5 - midBody
+        #endregion
     }
 
     private void ClientSocket_MessageReceived(string message)
