@@ -10,10 +10,11 @@ public class TcpSocket
     private int port;
     private Socket socket, clientSocket;
     private byte[] buffer = new byte[1024];
+    private long counter = 0;
 
     private int backlog = 10;
 
-    public delegate void OnMessageReceived(string message);
+    public delegate void OnMessageReceived(string message, long counter);
     public event OnMessageReceived MessageReceived;
 
     public TcpSocket(string ipAddress, int port)
@@ -36,8 +37,7 @@ public class TcpSocket
     {
         Console.WriteLine("Accept callback called... ");
         clientSocket = socket.EndAccept(result);
-        if (socket.Connected)
-            Console.WriteLine("A client has connected... ");
+        if (socket.Connected) { Console.WriteLine("A client has connected... "); }
         clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceivedCallback, clientSocket);
 
         Accept();
@@ -53,7 +53,7 @@ public class TcpSocket
     {
         return socket.BeginConnect(new IPEndPoint(IPAddress.Parse(ipAddress), port), ConnectCallback, null);
     }
-    
+
     private void ConnectCallback(IAsyncResult result)
     {
         if (socket.Connected)
@@ -65,16 +65,22 @@ public class TcpSocket
 
     private void ReceivedCallback(IAsyncResult result)
     {
+        clientSocket = result.AsyncState as Socket;
         Debug.Log("Entered Receive callback...");
         int bufferLength = socket.EndReceive(result);
-        string message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
-        Debug.Log(message);
-        if (MessageReceived != null) { MessageReceived(message); }
+        if (bufferLength > 0)
+        {
+            counter++;
+            string message = Encoding.ASCII.GetString(buffer, 0, buffer.Length);
+            if (MessageReceived != null) { MessageReceived(message, counter); }
 
-        // Handle packet
-        Array.Clear(buffer, 0, buffer.Length);
-        socket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceivedCallback, null);
+            // Handle packet
+            Array.Clear(buffer, 0, buffer.Length);
+            clientSocket.BeginReceive(buffer, 0, buffer.Length, SocketFlags.None, ReceivedCallback, clientSocket);
+        }
+        else { Debug.Log("Nothing received from socket"); }
+
     }
 
-    
+
 }

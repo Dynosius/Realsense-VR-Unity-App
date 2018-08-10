@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
-using System;
 
 public class RealsenseController : MonoBehaviour
 {
@@ -14,17 +12,20 @@ public class RealsenseController : MonoBehaviour
     public GameObject head;
     public GameObject middleBody;
     #endregion
-    private float coordZ = -9f;
-    Vector3[] gameobjectVectors = new Vector3[6];
-
-
+    private const float coordZ = -9f;
+    private const float divisor = 80f;
+    Vector3[] gameobjectVectors = new Vector3[8];
+    private Vector3 characterVector;
+    private Transform playerCharacter;
     private bool IsMessageReceived = false;
     // Use this for initialization
     void Awake()
     {
         clientSocket = new TcpSocket("127.0.0.1", 54000);
         clientSocket.MessageReceived += ClientSocket_MessageReceived;
-        //clientSocket.Connect();
+        // Putting the character position in a vector so we can manipulate its position later on
+        playerCharacter = GameObject.Find("PlayerCharacter").transform;
+        characterVector = playerCharacter.position;
         // Initializing vectors that will be changed through coordinates we'll be receiving
         #region gameobjectVectors initialization
         gameobjectVectors[0] = new Vector3(0f, 0f, coordZ);     //0 - leftShoulder
@@ -36,38 +37,57 @@ public class RealsenseController : MonoBehaviour
         #endregion
     }
 
-    private void ClientSocket_MessageReceived(string message)
+    private void ClientSocket_MessageReceived(string message, long counter)
     {
         IsMessageReceived = true;
         ReformatMessage(message);
         Debug.Log(message);
+        Debug.Log(DateTime.Now.Hour + ":" + DateTime.Now.Minute + ":" + DateTime.Now.Second);
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(IsMessageReceived == true)
-        {
-            leftShoulder.transform.position = gameobjectVectors[0];
-            rightShoulder.transform.position = gameobjectVectors[1];
-            leftHand.transform.position = gameobjectVectors[2];
-            rightHand.transform.position = gameobjectVectors[3];
-            head.transform.position = gameobjectVectors[4];
-            middleBody.transform.position = gameobjectVectors[5];
 
-            IsMessageReceived = false; 
+        //leftShoulder.transform.position = gameobjectVectors[0];
+        //rightShoulder.transform.position = gameobjectVectors[1];
+        leftHand.transform.position = Vector3.Lerp(leftHand.transform.position, gameobjectVectors[2], Time.deltaTime * 5f);
+        rightHand.transform.position = Vector3.Lerp(rightHand.transform.position, gameobjectVectors[3], Time.deltaTime * 5f); ;
+        //head.transform.position = gameobjectVectors[4];
+        middleBody.transform.position = gameobjectVectors[5];
+        // move character to where spine is on the x axis
+        if (gameobjectVectors[5][0] != 0f)
+        {
+            characterVector.x = gameobjectVectors[5][0];
+            playerCharacter.position = Vector3.Lerp(playerCharacter.position, characterVector, Time.deltaTime * 5f);
         }
+        
     }
 
     private void ReformatMessage(string message)
     {
+        float x, y;
         string[] perBodyparts = message.Split(' ');
         string[][] wholeMessage = new string[perBodyparts.Length - 1][];
         for (int i = 0; i < perBodyparts.Length - 1; i++)   // Splitting message into parts, and changing vector coordinates
         {
             wholeMessage[i] = perBodyparts[i].Split(';');
-            gameobjectVectors[i].x = float.Parse(wholeMessage[i][1]);
-            gameobjectVectors[i].y = float.Parse(wholeMessage[i][2]);
+            if (i <= 5)
+            {
+                x = float.Parse(wholeMessage[i][1]);
+                x = (x / divisor) + 1f;
+                y = float.Parse(wholeMessage[i][2]);
+                y = 9f - (y / divisor);
+                Debug.Log(wholeMessage[i][0] + ";" + x + ";" + y + ";");
+
+                gameobjectVectors[i].x = x;
+                gameobjectVectors[i].y = y;
+            }
+            else
+            {
+                Debug.Log(wholeMessage[i][0]);
+            }
+
         }
     }
 }
