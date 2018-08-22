@@ -11,12 +11,16 @@ public class RealsenseController : MonoBehaviour
     public GameObject rightShoulder;
     public GameObject head;
     public GameObject middleBody;
+    public Transform camera;
     #endregion
     private const float coordZ = -9f;
-    private const float divisor = 80f;
+    private const float divisor = 70f;
     Vector3[] gameobjectVectors = new Vector3[8];
     private Vector3 characterVector;
     private Transform playerCharacter;
+    private float startingPosZ, startingPosX;
+    private float offsetZ;
+    private float offsetX;
     private bool IsMessageReceived = false;
     // Use this for initialization
     void Awake()
@@ -28,13 +32,18 @@ public class RealsenseController : MonoBehaviour
         characterVector = playerCharacter.position;
         // Initializing vectors that will be changed through coordinates we'll be receiving
         #region gameobjectVectors initialization
-        gameobjectVectors[0] = new Vector3(0f, 0f, coordZ);     //0 - leftShoulder
-        gameobjectVectors[1] = new Vector3(0f, 0f, coordZ);     //1 - rightShoulder
-        gameobjectVectors[2] = new Vector3(0f, 0f, coordZ);     //2 - leftHand
-        gameobjectVectors[3] = new Vector3(0f, 0f, coordZ);     //3 - rightHand
-        gameobjectVectors[4] = new Vector3(0f, 0f, coordZ);     //4 - head
-        gameobjectVectors[5] = new Vector3(0f, 0f, coordZ);     //5 - midBody
+        gameobjectVectors[0] = new Vector3(5f, 0f, coordZ);     //0 - leftShoulder
+        gameobjectVectors[1] = new Vector3(5f, 0f, coordZ);     //1 - rightShoulder
+        gameobjectVectors[2] = new Vector3(5f, 0f, coordZ);     //2 - leftHand
+        gameobjectVectors[3] = new Vector3(5f, 0f, coordZ);     //3 - rightHand
+        gameobjectVectors[4] = new Vector3(5f, 0f, coordZ);     //4 - head
+        gameobjectVectors[5] = new Vector3(5f, 0f, coordZ);     //5 - midBody
         #endregion
+
+        // For using VR as Z buffer offset
+
+        startingPosX = characterVector.x;
+        startingPosZ = characterVector.z;
     }
 
     private void ClientSocket_MessageReceived(string message, long counter)
@@ -48,20 +57,30 @@ public class RealsenseController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-
-        //leftShoulder.transform.position = gameobjectVectors[0];
-        //rightShoulder.transform.position = gameobjectVectors[1];
-        leftHand.transform.position = Vector3.Lerp(leftHand.transform.position, gameobjectVectors[2], Time.deltaTime * 5f);
-        rightHand.transform.position = Vector3.Lerp(rightHand.transform.position, gameobjectVectors[3], Time.deltaTime * 5f); ;
-        //head.transform.position = gameobjectVectors[4];
-        middleBody.transform.position = gameobjectVectors[5];
-        // move character to where spine is on the x axis
-        if (gameobjectVectors[5][0] != 0f)
+        offsetZ = startingPosZ - camera.position.z;
+        offsetX = startingPosX - camera.position.x;
+        characterVector.x = camera.position.x;
+        characterVector.z = camera.position.z - .3f;
+        playerCharacter.position = Vector3.Lerp(playerCharacter.position, characterVector, Time.deltaTime * 5f);
+        if (IsMessageReceived)
         {
-            characterVector.x = gameobjectVectors[5][0];
-            playerCharacter.position = Vector3.Lerp(playerCharacter.position, characterVector, Time.deltaTime * 5f);
+
+            leftHand.transform.position = Vector3.Lerp(leftHand.transform.position, gameobjectVectors[2], Time.deltaTime * 5f);
+            rightHand.transform.position = Vector3.Lerp(rightHand.transform.position, gameobjectVectors[3], Time.deltaTime * 5f);
         }
-        
+
+
+        // move character to where spine is on the x axis
+        if (gameobjectVectors[5][0] > 0f || gameobjectVectors[5][0] < 10f)
+        {
+            //characterVector.x = gameobjectVectors[5][0];
+            //
+
+        }
+
+
+
+
     }
 
     private void ReformatMessage(string message)
@@ -77,7 +96,7 @@ public class RealsenseController : MonoBehaviour
                 x = float.Parse(wholeMessage[i][1]);
                 x = (x / divisor) + 1f;
                 y = float.Parse(wholeMessage[i][2]);
-                y = 9f - (y / divisor);
+                y = 10f - (y / divisor);
                 Debug.Log(wholeMessage[i][0] + ";" + x + ";" + y + ";");
 
                 gameobjectVectors[i].x = x;

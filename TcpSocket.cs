@@ -8,7 +8,7 @@ public class TcpSocket
 {
     private string ipAddress;
     private int port;
-    private Socket socket, clientSocket;
+    private static Socket socket, clientSocket;
     private byte[] buffer = new byte[1024];
     private long counter = 0;
 
@@ -82,5 +82,15 @@ public class TcpSocket
 
     }
 
-
+    public static void CloseSocket()
+    {
+        if (socket != null)
+        {
+            socket.Close();
+        }
+        if(clientSocket != null)
+        {
+            socket.Close();
+        }
+    }
 }
