@@ -60,7 +60,7 @@ public class RealsenseController : MonoBehaviour
         offsetZ = startingPosZ - camera.position.z;
         offsetX = startingPosX - camera.position.x;
         characterVector.x = camera.position.x;
-        characterVector.z = camera.position.z - .3f;
+        characterVector.z = camera.position.z - .5f;
         playerCharacter.position = Vector3.Lerp(playerCharacter.position, characterVector, Time.deltaTime * 5f);
         if (IsMessageReceived)
         {
@@ -68,8 +68,6 @@ public class RealsenseController : MonoBehaviour
             leftHand.transform.position = Vector3.Lerp(leftHand.transform.position, gameobjectVectors[2], Time.deltaTime * 5f);
             rightHand.transform.position = Vector3.Lerp(rightHand.transform.position, gameobjectVectors[3], Time.deltaTime * 5f);
         }
-
-
         // move character to where spine is on the x axis
         if (gameobjectVectors[5][0] > 0f || gameobjectVectors[5][0] < 10f)
         {
@@ -77,10 +75,6 @@ public class RealsenseController : MonoBehaviour
             //
 
         }
-
-
-
-
     }
 
     private void ReformatMessage(string message)
