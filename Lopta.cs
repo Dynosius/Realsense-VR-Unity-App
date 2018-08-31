@@ -3,20 +3,15 @@ using System.Collections;
 using UnityEngine.UI;
 public class Lopta : MonoBehaviour
 {
-    public Text scoreText;
     public Rigidbody rb;
+    public AudioSource source;
     private Transform ball;
     private Transform player;
     public Transform referenceObject;
-    public float addForce = 1000f, deltaForce = 25f;
+    public float deltaForce = 15f;
+    public float ballSpeed = 10f;
     private bool hasCollided = false;
     private Vector3 originalPosition;
-
-    #region Game altering properties
-    public int Score { get; set; }
-    public int Multiplier { get; set; }
-    public int NumberOfConsecutiveHits { get; set; }
-    #endregion
     // Use this for initialization
     void Start()
     {
@@ -24,11 +19,7 @@ public class Lopta : MonoBehaviour
         ball = GameObject.Find("PlayingBall").transform;
         originalPosition = transform.position;
         rb.angularDrag = 0;
-        rb.AddForce(0, 0, -addForce);
-        Score = 0;
-        Multiplier = 1;
-        NumberOfConsecutiveHits = 0;
-        scoreText.text = "Score: " + Score;
+        rb.AddForce(0, 0, -1000f);
     }
 
     // Update is called once per frame
@@ -53,15 +44,20 @@ public class Lopta : MonoBehaviour
 
     private void OnCollisionEnter(Collision col)
     {
+        source.Play();
         hasCollided = true;
         if (col.gameObject.name.Equals("LeftHand") || col.gameObject.name.Equals("RightHand"))
         {
             rb.velocity = Vector3.zero;
             Vector3 newDir = col.contacts[0].point - transform.position;
             newDir = -newDir.normalized;
-            newDir.z = 1f;
+            newDir.z = ballSpeed;
             newDir.y /= 2;
-            rb.AddForce(newDir * 300f);
+            newDir.y *= ballSpeed;
+            newDir.x /= 2;
+            newDir.x *= ballSpeed;
+            //rb.AddForce(newDir * 300f);
+            rb.velocity = newDir;
         }
         //if(Mathf.Abs(rb.velocity.z) <= 5.0f)
         //{
@@ -79,42 +75,13 @@ public class Lopta : MonoBehaviour
             shootTowards.y += Random.Range(-1f, 1f);
             rb.AddForce(shootTowards * deltaForce);
         }
-        // Scoring mechanism
-        if(col.gameObject.name.Equals("Target"))
-        {
-            NumberOfConsecutiveHits++;
-            if(NumberOfConsecutiveHits == 2)
-            {
-                Multiplier = 2;
-            }
-            else if (NumberOfConsecutiveHits == 5)
-            {
-                Multiplier = 4;
-            }
-            else if (NumberOfConsecutiveHits == 10)
-            {
-                Multiplier = 8;
-            }
-            else if (NumberOfConsecutiveHits == 15)
-            {
-                Multiplier = 10;
-            }
-            Score += Multiplier;
-        }
-        else if (col.gameObject.name.Equals("FrontWall"))
-        {
-            NumberOfConsecutiveHits = 0;
-            Multiplier = 1;
-        }
-
-        scoreText.text = "Score: " + Score;
     }
 
     private void ResetBall()
     {
         transform.position = originalPosition;
         rb.velocity = Vector3.zero;
-        rb.AddForce(0, 0, -addForce);
+        rb.AddForce(0, 0, -1000f);
     }
 
 }

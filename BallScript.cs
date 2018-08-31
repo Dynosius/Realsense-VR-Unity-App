@@ -5,9 +5,11 @@ using UnityEngine;
 public class BallScript : MonoBehaviour {
 
     Renderer rend;
+    AudioSource src;
 	// Use this for initialization
 	void Start () {
         rend = GetComponent<Renderer>();
+        src = GetComponent<AudioSource>();
         rend.material.color = Color.red;
     }
 	
@@ -22,9 +24,14 @@ public class BallScript : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.name.Equals("RightHand") || other.gameObject.name.Equals("LeftHand"))
+        if(rend.material.color == Color.red)
         {
-            rend.material.color = Color.green;
+            if (other.gameObject.name.Equals("RightHand") || other.gameObject.name.Equals("LeftHand"))
+            {
+                rend.material.color = Color.green;
+                src.Play();
+            }
         }
+        
     }
 }
