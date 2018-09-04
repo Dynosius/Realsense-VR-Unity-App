@@ -7,24 +7,31 @@ public class MainMenu : MonoBehaviour
 {
     public void PlayBouncyBall()
     {
-        TcpSocket.CloseSocket();
-        Time.timeScale = 1f;
-        Pause.GameIsPaused = false;
-        SceneManager.LoadScene(1);
+        CleanupAndLoad(1);
     }
 
     public void PlayPainting()
     {
-        TcpSocket.CloseSocket();
-        Time.timeScale = 1f;
-        Pause.GameIsPaused = false;
-        SceneManager.LoadScene(2);
+        CleanupAndLoad(2);
+    }
+
+    public void PlayDestruction()
+    {
+        CleanupAndLoad(3);
     }
 
     public void QuitGame()
     {
         TcpSocket.CloseSocket();
         Application.Quit();
+    }
+
+    private void CleanupAndLoad(int n)
+    {
+        TcpSocket.CloseSocket();
+        Time.timeScale = 1f;
+        Pause.GameIsPaused = false;
+        SceneManager.LoadScene(n);
     }
 
 }

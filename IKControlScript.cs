@@ -6,11 +6,9 @@ public class IKControlScript : MonoBehaviour
 {
     private RealsenseController RSController;
     protected Animator animator;
-    public Transform rightHandMiddleFinger;
-    public Transform leftHandMiddleFinger;
     private Transform rightHandCoordinate;
     private Transform leftHandCoordinate;
-    private Transform myRightHand, myLeftHand;
+    public Transform myRightHand, myLeftHand;
     private Quaternion defaultLeftRotation, defaultRightRotation;
     private Quaternion rightHandUp = Quaternion.Euler(new Vector3(0, 0, -45));
     private Quaternion leftHandUp = Quaternion.Euler(new Vector3(0, 0, 45));
@@ -20,8 +18,6 @@ public class IKControlScript : MonoBehaviour
         animator = GetComponent<Animator>();
         rightHandCoordinate = GameObject.Find("lijevaSaka").transform;
         leftHandCoordinate = GameObject.Find("desnaSaka").transform;
-        myRightHand = rightHandMiddleFinger.parent;
-        myLeftHand = leftHandMiddleFinger.parent;
         defaultLeftRotation = myLeftHand.rotation;
         defaultRightRotation = myRightHand.rotation;
     }
@@ -35,6 +31,7 @@ public class IKControlScript : MonoBehaviour
             animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
             animator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandCoordinate.position);
             animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+
 
             //if (rightHandCoordinate.position.y > 3.5f)
             //{

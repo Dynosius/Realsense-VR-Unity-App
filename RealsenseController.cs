@@ -14,7 +14,7 @@ public class RealsenseController : MonoBehaviour
     public Transform camera;
     #endregion
     private const float coordZ = -9f;
-    private const float divisor = 70f;
+    public float divisor = 80f;
     Vector3[] gameobjectVectors = new Vector3[8];
     private Vector3 characterVector;
     private Transform playerCharacter;
