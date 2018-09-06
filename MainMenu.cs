@@ -19,6 +19,11 @@ public class MainMenu : MonoBehaviour
     {
         CleanupAndLoad(3);
     }
+    
+    public void PlayCupDemo()
+    {
+        CleanupAndLoad(4);
+    }
 
     public void QuitGame()
     {
