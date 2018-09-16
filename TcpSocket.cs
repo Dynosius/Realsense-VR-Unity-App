@@ -9,10 +9,10 @@ public class TcpSocket
     private string ipAddress;
     private int port;
     private static Socket socket, clientSocket;
-    private byte[] buffer = new byte[1024];
+    private byte[] buffer = new byte[512];
     private long counter = 0;
 
-    private int backlog = 10;
+    private int backlog = 50;
 
     public delegate void OnMessageReceived(string message, long counter);
     public event OnMessageReceived MessageReceived;
@@ -66,7 +66,7 @@ public class TcpSocket
     private void ReceivedCallback(IAsyncResult result)
     {
         clientSocket = result.AsyncState as Socket;
-        Debug.Log("Entered Receive callback...");
+        //Debug.Log("Entered Receive callback...");
         int bufferLength = socket.EndReceive(result);
         if (bufferLength > 0)
         {

@@ -6,7 +6,7 @@ public class GrabScript : MonoBehaviour
 {
     public static string SourceOfContact { get; set; }
     private bool cupHeldWithRightHand = false, cupHeldWithLeftHand = false;
-
+    public Transform myRightHand, myLeftHand, LKnee, RKnee, Spine, LElbow, RElbow, LFoot, RFoot;
     public Transform leftHand;
     public Transform rightHand;
     // Transform
@@ -26,8 +26,8 @@ public class GrabScript : MonoBehaviour
     {
         SourceOfContact = "";
         animator = GetComponent<Animator>();
-        rightHandCoordinate = GameObject.Find("lijevaSaka").transform;
-        leftHandCoordinate = GameObject.Find("desnaSaka").transform;
+        rightHandCoordinate = GameObject.Find("LeftHandCube").transform;
+        leftHandCoordinate = GameObject.Find("RightHandCube").transform;
         cup = GameObject.Find("CupObject").transform;
         cupReferenceLeft = GameObject.Find("SalicaReferenceLijeva").transform;
         cupReferenceRight = GameObject.Find("SalicaReferenceDesna").transform;
@@ -101,10 +101,24 @@ public class GrabScript : MonoBehaviour
     {
         if (animator)
         {
-            animator.SetIKPosition(AvatarIKGoal.RightHand, rightHandCoordinate.position);
-            animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
-            animator.SetIKPosition(AvatarIKGoal.LeftHand, leftHandCoordinate.position);
+            // Hands seem to be reversed so this fixes them
+            animator.SetIKPosition(AvatarIKGoal.LeftHand, rightHandCoordinate.position);
             animator.SetIKPositionWeight(AvatarIKGoal.LeftHand, 1);
+            animator.SetIKPosition(AvatarIKGoal.RightHand, leftHandCoordinate.position);
+            animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
+
+            animator.SetIKPosition(AvatarIKGoal.RightFoot, RFoot.position);
+            animator.SetIKPositionWeight(AvatarIKGoal.RightFoot, 1);
+            animator.SetIKPosition(AvatarIKGoal.LeftFoot, LFoot.position);
+            animator.SetIKPositionWeight(AvatarIKGoal.LeftFoot, 1);
+
+
+            animator.bodyPosition = Spine.position;
+
+            animator.SetIKHintPosition(AvatarIKHint.LeftElbow, LElbow.position);
+            animator.SetIKHintPositionWeight(AvatarIKHint.LeftElbow, 1);
+            animator.SetIKHintPosition(AvatarIKHint.RightElbow, RElbow.position);
+            animator.SetIKHintPositionWeight(AvatarIKHint.RightElbow, 1);
         }
     }
 }
